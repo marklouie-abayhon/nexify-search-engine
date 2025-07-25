@@ -1,7 +1,6 @@
-# Use official PHP image with FPM
 FROM php:8.2-fpm
 
-# Install dependencies
+# System dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
@@ -15,10 +14,10 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
+# Set working dir
 WORKDIR /var/www
 
-# Copy app files
+# Copy app source
 COPY . .
 
 # Install Laravel dependencies
@@ -28,12 +27,12 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Copy config files
+# Nginx + Supervisor config
 COPY nginx/default.conf /etc/nginx/sites-available/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose web port
+# Expose HTTP port
 EXPOSE 80
 
-# Start all services
+# Start Nginx + PHP-FPM using Supervisor
 CMD ["/usr/bin/supervisord"]
