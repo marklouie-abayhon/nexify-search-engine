@@ -2,5 +2,9 @@ services:
   - type: web
     name: nexify-search-engine
     env: docker
-    region: singapore
     plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    buildCommand: ""
+    startCommand: ""
+    autoDeploy: true
