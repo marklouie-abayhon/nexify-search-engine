@@ -3,6 +3,5 @@ services:
     name: nexify-search-engine
     env: docker
     plan: free
+    autoDeploy: true
     region: singapore
-    branch: main
-    dockerfilePath: ./Dockerfile
