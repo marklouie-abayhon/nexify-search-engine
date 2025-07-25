@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: nexify
+    env: php
+    repo: https://github.com/marklouie-abayhon/nexify-search-engine
+    branch: main
+    buildCommand: |
+      composer install --no-dev
+      php artisan key:generate
+      php artisan migrate --force
+    startCommand: php artisan serve --host 0.0.0.0 --port 10000
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        fromDatabase:
+          name: nexify-db
+          property: host
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        value: nexify
+      - key: DB_USERNAME
+        fromDatabase:
+          name: nexify-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: nexify-db
+          property: password
+
+databases:
+  - name: nexify-db
+    databaseName: nexify
