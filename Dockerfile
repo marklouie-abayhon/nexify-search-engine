@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     git \
     libzip-dev \
     zip \
+    libonig-dev \
+    libxml2-dev \
     && docker-php-ext-install pdo pdo_mysql zip
 
 # Install Composer
@@ -27,12 +29,16 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Copy Nginx and Supervisor configuration
+# Copy Nginx site config and Supervisor config
 COPY nginx/default.conf /etc/nginx/sites-available/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose port
+# Remove default nginx config to avoid conflict
+RUN rm -f /etc/nginx/sites-enabled/default \
+    && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Expose HTTP port
 EXPOSE 80
 
-# Start Supervisor to manage Nginx and PHP-FPM
-CMD ["/usr/bin/supervisord"]
+# Start Supervisor (which runs PHP-FPM + Nginx)
+CMD ["/usr/bin/supervisord", "-n"]
