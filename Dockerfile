@@ -1,31 +1,38 @@
-# Use the official PHP image with Apache
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
-
-# Set working directory
-WORKDIR /var/www/html
-
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libzip-dev unzip curl git \
-    && docker-php-ext-install zip pdo pdo_mysql
+    nginx \
+    supervisor \
+    unzip \
+    curl \
+    git \
+    libzip-dev \
+    zip \
+    && docker-php-ext-install pdo pdo_mysql zip
 
 # Install Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files
+# Set working directory
+WORKDIR /var/www
+
+# Copy application source
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install Laravel dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Copy Nginx and Supervisor configuration
+COPY nginx/default.conf /etc/nginx/sites-available/default
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose port
 EXPOSE 80
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Start Supervisor to manage Nginx and PHP-FPM
+CMD ["/usr/bin/supervisord"]
