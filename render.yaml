@@ -17,13 +17,13 @@ services:
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
-        value: your-db-host
+        value: 127.0.0.1
       - key: DB_PORT
         value: 3306
       - key: DB_DATABASE
-        value: your-db-name
+        value: nexify
       - key: DB_USERNAME
-        value: your-db-username
+        value: root
       - key: DB_PASSWORD
         value: your-db-password
     autoDeploy: true
