@@ -27,12 +27,13 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Copy configuration files
+# ✅ Fix PHP-FPM to use TCP (127.0.0.1:9000)
+RUN sed -i 's|listen = .*|listen = 127.0.0.1:9000|' /usr/local/etc/php-fpm.d/www.conf
+
+# Copy nginx and supervisor config
 COPY nginx/default.conf /etc/nginx/sites-available/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose HTTP port
 EXPOSE 80
 
-# Start Supervisor to manage Nginx and PHP-FPM
 CMD ["/usr/bin/supervisord"]
