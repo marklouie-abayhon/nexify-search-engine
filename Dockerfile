@@ -15,10 +15,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
-# Create directory for PHP-FPM socket
 RUN mkdir -p /var/run/php
 
-# Copy the new PHP-FPM pool configuration
+# Copy the global and pool FPM configs
+COPY php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY php-fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
