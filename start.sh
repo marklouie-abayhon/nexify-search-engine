@@ -6,7 +6,7 @@ echo "Working directory: $(pwd)"
 
 echo ""
 echo "=== NGINX CONFIGURATION TEST ==="
-nginx -t -c /etc/nginx/nginx.conf
+nginx -t
 
 echo ""
 echo "=== PHP-FPM CONFIGURATION TEST ==="
