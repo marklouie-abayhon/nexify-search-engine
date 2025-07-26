@@ -16,7 +16,7 @@ COPY . .
 
 # Configure Nginx
 COPY nginx.conf /etc/nginx/sites-available/default
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+RUN rm -f /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 # Configure Supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
