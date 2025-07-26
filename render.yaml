@@ -2,16 +2,12 @@ services:
   - type: web
     name: nexify-search-engine
     env: docker
-    repo: https://github.com/marklouie-abayhon/nexify-search-engine  # ← Change if different
-    branch: main
     plan: free
     region: singapore
-    dockerfilePath: Dockerfile
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: APP_ENV
         value: production
-      - key: APP_DEBUG
-        value: false
       - key: APP_KEY
         generateValue: true
       - key: APP_URL
@@ -19,7 +15,7 @@ services:
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
-        value: metro.proxy.rlwy.net  # Update if using another host
+        value: metro.proxy.rlwy.net
       - key: DB_PORT
         value: 3306
       - key: DB_DATABASE
@@ -27,4 +23,4 @@ services:
       - key: DB_USERNAME
         value: root
       - key: DB_PASSWORD
-        value: your_mysql_password  # Replace this securely
+        value: ozuSEZpPowKQCSPCEHFWtegOQLspHfuk
