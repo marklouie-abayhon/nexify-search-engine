@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Install system dependencies
+# Install system dependencies including sqlite3 development libraries
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nginx \
-    supervisor
+    supervisor \
+    libsqlite3-dev  # Add this line to install sqlite3 development package
 
 # Install PHP extensions
 RUN docker-php-ext-install \
