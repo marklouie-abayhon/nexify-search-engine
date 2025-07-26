@@ -1,46 +1,38 @@
 FROM php:8.2-fpm
 
-WORKDIR /var/www
-
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    unzip \
+    curl \
+    git \
+    libzip-dev \
+    zip \
+    && docker-php-ext-install pdo pdo_mysql zip
 
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath
-
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Set working directory
+WORKDIR /var/www
+
+# Copy application source
 COPY . .
 
-# Configure Nginx - back to sites-available approach
-COPY nginx.conf /etc/nginx/sites-available/default
-RUN rm -f /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+# Install Laravel dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Configure Supervisor
+# Set permissions
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Copy Nginx and Supervisor configuration
+COPY nginx/default.conf /etc/nginx/sites-available/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Create required directories
-RUN mkdir -p /var/run/php /var/log/supervisor
-
-# Configure PHP-FPM
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
-
-# Install dependencies and optimize
-RUN composer install --no-dev --no-interaction --optimize-autoloader
-
-# Laravel setup
-RUN cp .env.example .env || touch .env
-RUN php artisan key:generate --force || true
-RUN php artisan config:cache || true
-RUN php artisan route:cache || true
-RUN php artisan view:cache || true
-
-# Fix permissions for Laravel
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
-
+# Expose port
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start Supervisor to manage Nginx and PHP-FPM
+CMD ["/usr/bin/supervisord"]
