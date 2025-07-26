@@ -30,6 +30,13 @@ COPY php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 # Install dependencies and optimize
 RUN composer install --no-dev --no-interaction --optimize-autoloader
 
+# Laravel setup
+RUN cp .env.example .env || touch .env
+RUN php artisan key:generate --force || true
+RUN php artisan config:cache || true
+RUN php artisan route:cache || true
+RUN php artisan view:cache || true
+
 # Fix permissions for Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
