@@ -5,8 +5,8 @@ services:
     repo: https://github.com/marklouie-abayhon/nexify-search-engine
     branch: main
     dockerfilePath: ./Dockerfile
-    buildCommand: 'composer install && npm install && npm run build'
-    startCommand: 'php artisan serve --host=0.0.0.0 --port=10000'
+    buildCommand: 'composer install --optimize-autoloader --no-dev && npm install && npm run build'
+    # Remove startCommand to let Supervisor/Nginx handle the process
     envVars:
       - key: APP_ENV
         value: production
@@ -14,3 +14,6 @@ services:
         generateValue: true
       - key: DB_CONNECTION
         value: sqlite
+      - key: APP_URL
+        value: https://nexify-search-engine.onrender.com
+    autoDeploy: true
